@@ -36,7 +36,7 @@ env:
   # GIT_ENVIRONMENT: prod
 
   DEFAULT_LOCATION: ${{ vars.DEFAULT_LOCATION || 'westeurope' }}
-  REGISTRY_NAME: ${{ vars.REGISTRY_NAME || 'acrsampleprod' }}
+  REGISTRY_NAME: ${{ vars.REGISTRY_NAME || 'acrbicepregprodfzh' }}
   # use this when your registry url differs from the default
   # CUSTOM_REGISTRY_URL: ${{ vars.CUSTOM_REGISTRY_URL || '' }}
 
@@ -51,8 +51,7 @@ env:
 
   # Temporarly allows the github agents ip on the registry
   # Use this when your registry is not publicly accessible
-  SET_IP_RULES: |
-    ${{ vars.REGISTRY_NAME || 'acrsampleprod' }}
+  SET_IP_RULES: ""
 
   # Allows overwriting published bicep module versions
   ALLOW_IMAGE_OVERWRITE: true
