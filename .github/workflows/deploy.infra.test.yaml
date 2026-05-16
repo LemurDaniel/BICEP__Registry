@@ -75,7 +75,7 @@ jobs:
       scope: subscription
       location: germanywestcentral
       
-      deployment_name: 'sample-test'
+      deployment_name: 'registry'
       template_file: ./infra/registry.scope.subscription.bicep
       parameter_file: ./infra/params/registry.test.bicepparam
 

@@ -1,6 +1,6 @@
 {
     "version": "1.0.0",
-    "description": "Naming module schemas.",
+    "description": "Switch Module",
     "deployment_tests": {
         "base_path": ".",
         "include": [
