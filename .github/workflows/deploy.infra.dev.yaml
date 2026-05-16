@@ -1,5 +1,5 @@
     
-name: Test | Deploy Bicep Registry
+name: Dev | Deploy Bicep Registry
 
 on:
   workflow_dispatch:
