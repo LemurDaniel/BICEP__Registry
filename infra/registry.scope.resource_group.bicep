@@ -87,15 +87,15 @@ resource resRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' = {
 
     publicNetworkAccess: paramNetworking.access != 'Private' ? 'Enabled' : 'Disabled'
     networkRuleBypassOptions: paramNetworking.bypass
-    networkRuleSet: {
-      defaultAction: paramNetworking.access == 'Public' ? 'Allow' : 'Deny'
-      ipRules: [
-        for ipRule in paramNetworking.ipRules: {
-          action: 'Allow'
-          value: contains(ipRule, '/') ? ipRule : '${ipRule}/32'
+    networkRuleSet: sku != 'Standard'
+      ? {
+          defaultAction: paramNetworking.access == 'Public' ? 'Allow' : 'Deny'
+          ipRules: map(paramNetworking.ipRules, ipRule => {
+            action: 'Allow'
+            value: contains(ipRule, '/') ? ipRule : '${ipRule}/32'
+          })
         }
-      ]
-    }
+      : {}
 
     policies: {
       exportPolicy: {
