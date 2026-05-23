@@ -1,0 +1,65 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "metadata": {
+    "_generator": {
+      "name": "bicep",
+      "version": "0.33.93.31351",
+      "templateHash": "744027086590724361"
+    }
+  },
+  "parameters": {
+    "assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "resourceId": {
+            "type": "string"
+          },
+          "principalId": {
+            "type": "string"
+          },
+          "roleDefinitionId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "resources": {
+    "rbacRG": {
+      "copy": {
+        "name": "rbacRG",
+        "count": "[length(parameters('assignments'))]"
+      },
+      "condition": "[equals(length(split(parameters('assignments')[copyIndex()].resourceId, '/')), 5)]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "name": "[parameters('assignments')[copyIndex()].name]",
+      "properties": {
+        "principalId": "[parameters('assignments')[copyIndex()].principalId]",
+        "roleDefinitionId": "[parameters('assignments')[copyIndex()].roleDefinitionId]"
+      }
+    },
+    "rbacResource": {
+      "copy": {
+        "name": "rbacResource",
+        "count": "[length(parameters('assignments'))]"
+      },
+      "condition": "[not(equals(length(split(parameters('assignments')[copyIndex()].resourceId, '/')), 5))]",
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[parameters('assignments')[copyIndex()].resourceId]",
+      "name": "[parameters('assignments')[copyIndex()].name]",
+      "properties": {
+        "principalId": "[parameters('assignments')[copyIndex()].principalId]",
+        "roleDefinitionId": "[parameters('assignments')[copyIndex()].roleDefinitionId]"
+      }
+    }
+  }
+}
