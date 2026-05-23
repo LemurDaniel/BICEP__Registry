@@ -98,13 +98,13 @@ runs:
         $changedVersionsJson = $changedVersions 
         | ConvertTo-Json -Compress -AsArray
 
-        # Debug output
-        Write-Host "Module Folder: $FolderPrefix"
-        Write-Host "Version.json changes: $changedVersionsJson"
-
         if([System.String]::IsNullOrEmpty($changedVersionsJson)) {
           $changedVersionsJson = "{}"
         }
+        
+        # Debug output
+        Write-Host "Module Folder: $FolderPrefix"
+        Write-Host "Version.json changes: $changedVersionsJson"
 
         "module_changes=$changedVersionsJson" >> $env:GITHUB_OUTPUT
         "module_folder=$FolderPrefix" >> $env:GITHUB_OUTPUT
