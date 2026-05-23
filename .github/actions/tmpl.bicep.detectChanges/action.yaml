@@ -99,7 +99,7 @@ runs:
         | ConvertTo-Json -Compress -AsArray
 
         if([System.String]::IsNullOrEmpty($changedVersionsJson)) {
-          $changedVersionsJson = "{}"
+          $changedVersionsJson = "[]"
         }
         
         # Debug output
