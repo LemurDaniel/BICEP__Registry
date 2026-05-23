@@ -45,7 +45,7 @@ runs:
 
             # Delete local tag and refetch
             git tag -d $tagName 2>$null
-            git fetch --tags
+            git fetch --tags --force
 
             # Check if the tag exists
             $existingTag = git tag --list $tagName
