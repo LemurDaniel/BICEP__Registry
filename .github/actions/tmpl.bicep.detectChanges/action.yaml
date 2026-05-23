@@ -98,10 +98,6 @@ runs:
         $changedVersionsJson = $changedVersions 
         | ConvertTo-Json -Compress -AsArray
 
-        if([System.String]::IsNullOrEmpty($changedVersionsJson)) {
-          $changedVersionsJson = "[]"
-        }
-        
         # Debug output
         Write-Host "Module Folder: $FolderPrefix"
         Write-Host "Version.json changes: $changedVersionsJson"
