@@ -102,5 +102,9 @@ runs:
         Write-Host "Module Folder: $FolderPrefix"
         Write-Host "Version.json changes: $changedVersionsJson"
 
+        if([System.String]::IsNullOrEmpty($changedVersionsJson)) {
+          $changedVersionsJson = "{}"
+        }
+
         "module_changes=$changedVersionsJson" >> $env:GITHUB_OUTPUT
         "module_folder=$FolderPrefix" >> $env:GITHUB_OUTPUT
