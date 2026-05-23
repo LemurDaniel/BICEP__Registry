@@ -1,4 +1,13 @@
 {
     "description": "Retrieve IDs of built-in role definitions.",
-    "version": "1.1.1"
+    "version": "1.1.1",
+    "deployment_tests": {
+        "base_path": ".",
+        "include": [
+            {
+                "description": "Include all example folders in the test deployment",
+                "pattern": "example*"
+            }
+        ]
+    }
 }
