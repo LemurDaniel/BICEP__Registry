@@ -34,7 +34,7 @@ runs:
             Write-Host "Source Branch: $SourceBranch"
             Write-Host "Target Branch: $TargetBranch"
 
-            $filter = "$SourceBranch..$TargetBranch"
+            $filter = "$TargetBranch...$SourceBranch"
             $changes = git --no-pager diff --name-only $filter
         } else {
             $branch = "${{ github.ref_name }}" # git branch --show-current"
@@ -48,15 +48,14 @@ runs:
             git fetch --tags
 
             # Check if the tag exists
-            $tagName = git tag --list $tagName
+            $existingTag = git tag --list $tagName
 
-            if([System.String]::IsNullOrEmpty($tagName)) {
+            if([System.String]::IsNullOrEmpty($existingTag)) {
               Write-Host "Tag $tagName does not exist => treat all modules as changed"
-              $changes = Get-ChildItem -Path "$FolderPrefix" -Recurse -File 
+              $changes = Get-ChildItem -Path "$FolderPrefix" -Recurse -File
               | Select-Object -ExpandProperty FullName
             } else {
-              $changes = git --no-pager diff --name-only $tagName
-              $changes = $changes -split "`n"
+              $changes = git --no-pager diff --name-only $existingTag
             }
         }
 
