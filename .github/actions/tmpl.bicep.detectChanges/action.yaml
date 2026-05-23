@@ -23,7 +23,7 @@ runs:
       shell: pwsh
       run: |
         $changes = $null
-        $FolderPrefix = Resolve-Path "./${{ inputs.folderPrefix }}"
+        $FolderPrefix = Resolve-Path "./${{ inputs.folder_prefix }}"
         | Select-Object -ExpandProperty Path
 
         if("${{ github.event_name }}" -EQ "pull_request") {
@@ -56,6 +56,7 @@ runs:
               | Select-Object -ExpandProperty FullName
             } else {
               $changes = git --no-pager diff --name-only $existingTag
+              $changes = $changes -split "`n"
             }
         }
 
@@ -97,7 +98,7 @@ runs:
 
         $changedVersionsJson = $changedVersions 
         | ConvertTo-Json -Compress -AsArray
-
+        
         # Debug output
         Write-Host "Module Folder: $FolderPrefix"
         Write-Host "Version.json changes: $changedVersionsJson"
