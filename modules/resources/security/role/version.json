@@ -5,7 +5,7 @@
         "base_path": ".",
         "include": [
             {
-                "description": "Include all example folders in the test deployment",
+                "description": "Include all example folders in the test deployment.",
                 "pattern": "example*"
             }
         ]
