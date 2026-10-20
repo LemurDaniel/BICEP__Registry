@@ -7,14 +7,6 @@
       "Bash(git diff*)",
       "Bash(git log*)"
     ],
-    "deny": [
-      "Bash(az deployment*)",
-      "Bash(az acr*)",
-      "Bash(az bicep publish*)",
-      "Bash(git tag*)",
-      "Bash(git push*)",
-      "mcp__claude_ai_Todoist",
-      "mcp__claude_ai_Notion"
-    ]
+    "deny": []
   }
 }
