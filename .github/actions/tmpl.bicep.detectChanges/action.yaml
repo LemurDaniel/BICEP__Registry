@@ -68,6 +68,10 @@ runs:
         | Where-Object { 
             Test-Path $_ 
         } 
+        # Only consider modules inside the module folder (ignores e.g. module_old/)
+        | Where-Object {
+            (Resolve-Path -Path $_).Path.StartsWith($FolderPrefix.TrimEnd('/', '\') + [System.IO.Path]::DirectorySeparatorChar)
+        }
         # Get the directory
         | ForEach-Object {
             [System.IO.FileInfo]::new($_).Directory
