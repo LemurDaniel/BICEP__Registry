@@ -60,11 +60,11 @@ var validation = map(
   [
     {
       details: 'Advanced Network Settings requires sku "Premium"'
-      bool: sku != 'Premium' && paramNetworking.access != 'Public'
+      bool: paramSku != 'Premium' && paramNetworking.access != 'Public'
     }
     {
       details: 'IP Rules requires sku "Premium"'
-      bool: sku != 'Premium' && length(paramNetworking.ipRules) > 0
+      bool: paramSku != 'Premium' && length(paramNetworking.ipRules) > 0
     }
   ],
   err => err.bool ? fail('ERROR | ${err.details}') : null
@@ -74,7 +74,7 @@ var validation = map(
 //// Module Deployment
 
 
-resource resRegistryStandard 'Microsoft.ContainerRegistry/registries@2025-04-01' = if(sku == 'Standard') {
+resource resRegistryStandard 'Microsoft.ContainerRegistry/registries@2025-04-01' = if(paramSku == 'Standard') {
   name: name.registry
   location: location
 
@@ -122,7 +122,7 @@ resource resRegistryStandard 'Microsoft.ContainerRegistry/registries@2025-04-01'
 }
 
 
-resource resRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' = if(sku != 'Standard') {
+resource resRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' = if(paramSku != 'Standard') {
   name: name.registry
   location: location
 
@@ -179,11 +179,24 @@ resource resRegistry 'Microsoft.ContainerRegistry/registries@2025-04-01' = if(sk
   }
 }
 
+// Only one of the two registry resources above is deployed, so scope role assignments on the deployed registry.
+resource resRegistryDeployed 'Microsoft.ContainerRegistry/registries@2025-04-01' existing = {
+  name: name.registry
+}
+
+// Built-in role definition ids
+var roleIdAcrPush = '8311e382-0749-4cb8-b61a-304f252e45ec'
+var roleIdAcrPull = '7f951dda-4ed3-4680-a7ca-43fe172d538d'
+
 resource resRoleAssignmentSPN 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployRoleAssignments) {
-  name: guid(resRegistry.id, 'AcrPush')
-  scope: resRegistry
+  name: guid(resRegistryDeployed.id, deployer().objectId, roleIdAcrPush)
+  scope: resRegistryDeployed
+  dependsOn: [
+    resRegistryStandard
+    resRegistry
+  ]
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'AcrPush')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIdAcrPush)
     principalId: deployer().objectId
   }
 }
@@ -195,10 +208,14 @@ resource resManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@20
 }
 
 resource resRoleAssignmentIdentity 'Microsoft.Authorization/roleAssignments@2022-04-01' = if (deployRoleAssignments && !empty(resManagedIdentity.?id)) {
-  name: guid(resRegistry.id, 'AcrPull')
-  scope: resManagedIdentity
+  name: guid(resRegistryDeployed.id, name.?identity ?? '', roleIdAcrPull)
+  scope: resRegistryDeployed
+  dependsOn: [
+    resRegistryStandard
+    resRegistry
+  ]
   properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', 'AcrPull')
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIdAcrPull)
     principalId: any(resManagedIdentity.?properties.principalId)
   }
 }
