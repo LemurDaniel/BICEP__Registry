@@ -11,14 +11,16 @@ runs:
     - name: Prepare Azure Credentials
       id: prepare_creds
       shell: pwsh
+      env:
+        AZURE_AUTH: ${{ inputs.AZURE_AUTH }}
       run: |
 
-        if([System.String]::IsNullOrEmpty('${{ inputs.AZURE_AUTH }}')) {
+        if([System.String]::IsNullOrEmpty($env:AZURE_AUTH)) {
           Write-Error "Azure authentication details are required."
           exit 1
         }
 
-        $azureAuth = '${{ inputs.AZURE_AUTH }}' | ConvertFrom-Json
+        $azureAuth = $env:AZURE_AUTH | ConvertFrom-Json
 
         $authType = [System.String]::IsNullOrEmpty($azureAuth.auth_type) ? "ClientSecret" : $azureAuth.auth_type
 
@@ -34,14 +36,14 @@ runs:
         "authType=$authType"  >> $env:GITHUB_OUTPUT
 
     - name: Azure Login | Client Secret
-      uses: azure/login@v1
+      uses: azure/login@v2
       if: ${{ steps.prepare_creds.outputs.authType == 'ClientSecret' }}
       with:
         creds: ${{ steps.prepare_creds.outputs.creds }}
         enable-AzPSSession: true
 
     - name: Azure Login | OIDC
-      uses: azure/login@v1
+      uses: azure/login@v2
       if: ${{ steps.prepare_creds.outputs.authType == 'OIDC' }}
       with:
         tenant-id: ${{ fromJson(steps.prepare_creds.outputs.creds).tenantId }}

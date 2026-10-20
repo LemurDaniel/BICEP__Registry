@@ -1,0 +1,13 @@
+{
+    "description": "Use if then for more readable conditions then using ternary operators.",
+    "version": "2.0.0",
+    "deployment_tests": {
+        "base_path": ".",
+        "include": [
+            {
+                "description": "Include all example folders in the test deployment",
+                "pattern": "example*"
+            }
+        ]
+    }
+}

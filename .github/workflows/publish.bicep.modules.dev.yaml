@@ -27,6 +27,11 @@ on:
       - "!modules/**/example/**"
       - "!modules/**/README.md"
 
+# contents: write is needed to push the change marker tag, id-token: write for OIDC login
+permissions:
+  contents: write
+  id-token: write
+
 env:
   FOLDER_PREFIX: modules/
   CONCURRENCY_LIMIT: 5
@@ -127,8 +132,10 @@ jobs:
   verify_solution:
     needs:
       - detect_changes
-    if: needs.detect_changes.outputs.deploy_module == 'true'
+    if: needs.detect_changes.outputs.deploy_module == 'true' && needs.detect_changes.outputs.module_changes != '[]'
     strategy:
+      # Temporary IP rules are shared state on the registry, parallel jobs would remove each others rule
+      max-parallel: 1
       matrix:
         module: ${{ fromJson(needs.detect_changes.outputs.module_changes) }}
 
@@ -168,8 +175,10 @@ jobs:
     needs:
       - detect_changes
       - verify_solution
-    if: ${{ !failure() && !cancelled() && needs.detect_changes.outputs.publish_module == 'true' }}
+    if: ${{ !failure() && !cancelled() && needs.detect_changes.outputs.publish_module == 'true' && needs.detect_changes.outputs.module_changes != '[]' }}
     strategy:
+      # Temporary IP rules are shared state on the registry, parallel jobs would remove each others rule
+      max-parallel: 1
       matrix:
         module: ${{ fromJson(needs.detect_changes.outputs.module_changes) }}
 

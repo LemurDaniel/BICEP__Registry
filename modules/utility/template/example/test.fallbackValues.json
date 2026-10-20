@@ -1,0 +1,33 @@
+{
+  "version": "1.0",
+  "metadata": {
+    "info": "App ${{ parameters.projectName || 'DefaultProject' }} in ${{ parameters.environment || 'dev' }} by ${{ parameters.createdBy || 'unknown' }}"
+  },
+  "resources": [
+    {
+      "type": "compute",
+      "name": "web-server",
+      "properties": {
+        "vmSize": "${{ parameters.vmSize || 'Standard_B1s' }}",
+        "osType": "Linux",
+        "tags": {
+          "summary": "Owner: ${{ parameters.owner || 'TeamUnknown' }}, Project: ${{ parameters.projectName || 'DefaultProject' }}"
+        }
+      }
+    },
+    {
+      "type": "database",
+      "name": "db-main",
+      "properties": {
+        "engine": "PostgreSQL",
+        "version": "${{ parameters.dbVersion || '1.0' }}",
+        "connection": {
+          "full": "host=${{ parameters.dbHost || 'localhost' }};port=5432;user=${{ parameters.createdBy || 'unknown' }}"
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "summary": "Web IP: ${{ parameters.webServerIp || '0.0.0.0' }}, DB: ${{ parameters.dbHost || 'localhost' }}:5432"
+  }
+}

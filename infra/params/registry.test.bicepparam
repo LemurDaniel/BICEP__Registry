@@ -1,4 +1,4 @@
-using '../registry.scope.resource_group.bicep'
+using '../registry.scope.subscription.bicep'
 
 param location = 'germanywestcentral'
 

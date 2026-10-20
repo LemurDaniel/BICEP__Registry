@@ -1,5 +1,5 @@
-name: "Manage ACR Access Restrictions"
-description: "Manages ACR access restrictions using PowerShell"
+name: "Deploy Bicep Infrastructure"
+description: "Deploys or what-ifs a Bicep file as deployment stack using PowerShell"
 inputs:
   subscription_id:
     description: 'Azure Subscription Id'

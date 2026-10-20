@@ -1,4 +1,4 @@
-import { switch, case, default } from '../module.bicep'
+import { switch, case } from '../module.bicep'
 import { switchStr, caseStr, defaultStr } from '../module.bicep'
 import { switchInt, caseInt, defaultInt, switchFlag } from '../module.bicep'
 

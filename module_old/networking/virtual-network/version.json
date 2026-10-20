@@ -1,0 +1,4 @@
+{
+    "description": "A Bicep-Module for deploying virtual networks.",
+    "version": "4.7.0"
+}

@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "languageVersion": "2.0",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "assignments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "string"
+          },
+          "principalId": {
+            "type": "string"
+          },
+          "roleDefinitionId": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "resources": {
+    "rbac_role_assignments": {
+      "copy": {
+        "name": "rbac_role_assignments",
+        "count": "[length(parameters('assignments'))]"
+      },
+      "type": "Microsoft.Authorization/roleAssignments",
+      "apiVersion": "2022-04-01",
+      "scope": "[if(greaterOrEquals(length(split(parameters('assignments')[copyIndex()].resourceId, '/')) , 7),join(skip(split(parameters('assignments')[copyIndex()].resourceId, '/'), 6), '/'),parameters('assignments')[copyIndex()].resourceId)]",
+      "name": "[guid(parameters('assignments')[copyIndex()].resourceId, parameters('assignments')[copyIndex()].principalId, parameters('assignments')[copyIndex()].roleDefinitionId)]",
+      "properties": {
+        "principalId": "[parameters('assignments')[copyIndex()].principalId]",
+        "roleDefinitionId": "[parameters('assignments')[copyIndex()].roleDefinitionId]"
+      }
+    }
+  }
+}
