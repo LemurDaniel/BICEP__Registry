@@ -1,0 +1,4 @@
+{
+    "description": "Deployment of private DNS-Zones with the common azure privatelink domain names.",
+    "version": "3.4.0"
+}

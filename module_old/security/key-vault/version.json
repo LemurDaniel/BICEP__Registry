@@ -1,0 +1,4 @@
+{
+    "description": "A Module for deploying key vaults and secrets.",
+    "version": "3.4.0"
+}

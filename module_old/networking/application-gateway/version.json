@@ -1,0 +1,4 @@
+{
+    "description": "A Bicep-Module for deploying an application gateway.",
+    "version": "4.0.0"
+}
