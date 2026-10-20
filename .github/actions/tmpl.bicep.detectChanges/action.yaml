@@ -60,7 +60,7 @@ runs:
             }
         }
 
-        $changedVersions = $changes
+        $changedVersions = @($changes
         | Where-Object { 
             $_ -LIKE "*version.json" 
         } 
@@ -85,7 +85,7 @@ runs:
             $null = $versionJson.Add("module_path", $_)
             $null = $versionJson.Add("folder_prefix", $FolderPrefix)
             return $versionJson
-        }
+        })
 
         $concurrencyLimit = "${{ inputs.concurrency_limit }}"
         $concurrencyLimit = [System.String]::IsNullOrEmpty($concurrencyLimit) ? 5 : $concurrencyLimit
@@ -96,8 +96,8 @@ runs:
         }
 
 
-        $changedVersionsJson = $changedVersions 
-        | ConvertTo-Json -Compress -AsArray
+        # ConvertTo-Json returns nothing for an empty array, make sure the output is always valid json
+        $changedVersionsJson = $changedVersions.Count -EQ 0 ? '[]' : ($changedVersions | ConvertTo-Json -Compress -Depth 20 -AsArray)
         
         # Debug output
         Write-Host "Module Folder: $FolderPrefix"

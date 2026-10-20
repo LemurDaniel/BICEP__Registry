@@ -85,6 +85,9 @@ on:
 jobs:
   publish_module:
     name: Publish ${{ inputs.image_name }}
+    permissions:
+      id-token: write
+      contents: read
     environment: ${{ inputs.environment != '' && inputs.environment || null }}
     runs-on: ${{ inputs.runs-on }}
     env:
@@ -124,10 +127,9 @@ jobs:
             "ACR_REGISTRY_URL=$registryUrl" >> $env:GITHUB_ENV
 
         - name: Azure Login
-          uses: azure/login@v1
+          uses: ./.github/actions/tmpl.azureLogin
           with:
-            creds: ${{ secrets.AZURE_AUTH }}
-            enable-AzPSSession: true              
+            AZURE_AUTH: ${{ secrets.AZURE_AUTH }}
    
         # ////////////////////////////////////////////////////////////////////////////////////////
         # Publish and optionally lock image
@@ -175,10 +177,10 @@ jobs:
                   2>&1
               }
 
-              # Prevent null result to avoid error with .startsWith
-              $result = $result ?? ''
+              # az returns an array of lines, normalize to a single string
+              $result = ($result ?? '') -join "`n"
 
-              if($LASTEXITCODE -NE 0 -OR $result.startsWith('ERROR:')) {
+              if($LASTEXITCODE -NE 0 -OR $result.StartsWith('ERROR:')) {
                 Write-Error "$result"
                 exit -1
               }

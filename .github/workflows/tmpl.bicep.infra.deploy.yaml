@@ -141,6 +141,9 @@ on:
 jobs:
   what_if:
     name: WhatIf ${{ inputs.template_file }}
+    permissions:
+      id-token: write
+      contents: read
     runs-on: ${{ inputs.runs-on }}
 
     steps:
@@ -161,12 +164,6 @@ jobs:
             foreach($file in $testFiles) {
               bicep test $file.FullName
             }
-
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_AUTH }}
-          enable-AzPSSession: true
 
       - name: Add ACR IP Rule
         uses: ./.github/actions/tmpl.bicepRegistry.ipRules
@@ -216,7 +213,10 @@ jobs:
     - what_if
     if: ${{ inputs.what_if_only == false }}
     name: Deploy ${{ inputs.template_file }}
-    environment: ${{ inputs.environment }}
+    permissions:
+      id-token: write
+      contents: read
+    environment: ${{ inputs.environment != '' && inputs.environment || null }}
     runs-on: ${{ inputs.runs-on }}
 
     steps:

@@ -40,6 +40,10 @@ on:
       - 'infra/*.bicep'
       - 'infra/params/*.prod.bicepparam'
    
+permissions:
+  contents: read
+  id-token: write
+
 jobs:
   deploy_prod:
     uses: ./.github/workflows/tmpl.bicep.infra.deploy.yaml
@@ -69,9 +73,8 @@ jobs:
     # }
     secrets: inherit
     with:
-      # NOTE:
-      # You can add an approval gate via the environment deployment protection rule for approvers
-      # environment: prod
+      # Approval gate: add required reviewers to the 'prod' environment in the repository settings
+      environment: prod
 
       scope: subscription
       location: germanywestcentral

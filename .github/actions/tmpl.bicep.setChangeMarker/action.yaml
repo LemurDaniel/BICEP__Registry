@@ -7,6 +7,7 @@ runs:
     - name: Checkout code
       uses: actions/checkout@v4
       with:
+        ref: ${{ github.sha }}
         persist-credentials: true
     - name: Update Tags
       shell: pwsh
@@ -18,11 +19,7 @@ runs:
         git config user.name "GitHubActions"
         git config user.email "actions@github.com"
 
-        # Make sure we're on the branch and up-to-date
-        git fetch origin $branch
-        git checkout $branch
-        git reset --hard origin/$branch
-
-        # Create or update the tag
-        git tag $tagName -m "$message" --force
+        # Tag the commit that was actually processed, not the current branch head.
+        # Commits landing in between are picked up by the next run.
+        git tag $tagName ${{ github.sha }} -m "$message" --force
         git push origin $tagName --force
