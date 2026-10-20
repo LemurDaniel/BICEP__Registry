@@ -41,15 +41,19 @@ The `deployment_tests.include[].pattern` controls which subdirectories under `ba
 ### Change detection
 
 The pipeline detects changed modules by comparing `version.json` files:
-- On **pull requests**: git diff between source and target branch
+- On **pull requests**: git diff between source and target branch (PRs ignore changes under `modules/**/example/**` and `README.md`; pushes do not)
 - On **push/merge**: git diff from the `meta-last-publish-marker-<branch>` git tag to HEAD (if no tag exists, all modules are treated as changed)
 
 After a successful publish, the `tmpl.bicep.setChangeMarker` action updates this tag.
 
+### Environments
+
+Dev and prod are separate workflows on separate branches: `dev` branch → dev registry (default `acrsampledev`), `master` branch → prod registry (default `acrbicepregprodfzh`). They differ in two ways: prod also runs test deployments on push, and only dev opens runner IP rules on the registry.
+
 ### Module lifecycle per CI run
 
 1. **Detect changes** — finds modules with modified `version.json`
-2. **Verify** (PR / workflow_dispatch) — runs `az bicep publish` as a what-if, then actual test deployments using `.scripts/deploy.ps1`
+2. **Verify** (PR / workflow_dispatch; prod also on push) — runs `az bicep publish` as a what-if, then actual test deployments using `.scripts/deploy.ps1`
 3. **Publish** (push / workflow_dispatch) — publishes `module.bicep` to ACR as `br:<registry>.azurecr.io/<module-path>:<version>`
 
 Concurrency is limited (default 5 modules per run). Exceeding this requires explicitly increasing `concurrency_limit`.
@@ -97,10 +101,23 @@ The ACR registry itself is deployed from `infra/`:
 - `registry.scope.subscription.bicep` — subscription-scoped entry point (creates RG + delegates to the RG-scoped module)
 - `registry.scope.resource_group.bicep` — actual ACR resource definition
 - `infra/params/` — environment-specific parameter files (`.test.bicepparam`, `.prod.bicepparam`)
+- Prod infra deploys use the GitHub environment `prod`: add required reviewers there for an approval gate. All workflows grant `id-token: write` so OIDC login works.
 
 ## Key conventions
 
 - Module images in ACR are versioned from `version.json`. Bumping the version is the only way to trigger a new publish.
-- On PRs, published images get an `unreleased/` prefix (`IMAGE_PREFIX`).
+- Any run that is not a push (PR, workflow_dispatch) publishes images with an `unreleased/` prefix (`IMAGE_PREFIX`).
 - IP rules on private registries are temporarily opened for the GitHub Actions runner IP, then removed — even on failure (`always()` condition).
 - The `utility/switch` module exports typed switch functions (`switchStr`, `switchInt`, `switchArr`, `switch`) imported via Bicep's `import` statement — not deployed as ARM resources, purely compile-time logic.
+
+## Offline check
+
+`pwsh .scripts/Test-Modules.ps1` runs `az bicep build` on every `module.bicep` and example, and validates every `version.json`. It never touches Azure. `/check-modules` wraps it for use with `/loop`.
+
+## Gotchas / hard limits
+
+- Do not edit or bump `version.json` unless asked: any change triggers a publish on the next CI run.
+- Do not run `deploy.ps1` without `-WhatIf`, or any `az deployment` / `az acr` / `az bicep publish` command, without explicit confirmation. These are denied in `.claude/settings.json`.
+- Never create, move or delete `meta-last-publish-marker-*` tags. Deleting one makes the next push publish all modules.
+- Do not raise `concurrency_limit` unless asked.
+- Never commit `AZURE_AUTH` contents or anything from `.claude/state/`.
