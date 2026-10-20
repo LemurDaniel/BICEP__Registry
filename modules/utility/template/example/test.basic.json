@@ -1,0 +1,39 @@
+{
+    "version": "1.0",
+    "metadata": {
+      "name": "MyRadonApp",
+      "env": "${{ parameters.environment }}",
+      "createdBy": "${{ parameters.createdBy }}"
+    },
+    "resources": [
+      {
+        "type": "compute",
+        "name": "web-server",
+        "properties": {
+          "vmSize": "${{ parameters.vmSize }}",
+          "osType": "Linux",
+          "tags": {
+            "project": "${{ parameters.projectName }}",
+            "owner": "${{ parameters.owner }}"
+          }
+        }
+      },
+      {
+        "type": "database",
+        "name": "db-main",
+        "properties": {
+          "engine": "PostgreSQL",
+          "version": "${{ parameters.dbVersion }}",
+          "connection": {
+            "host": "${{parameters.dbHost }}",
+            "port": 5432
+          }
+        }
+      }
+    ],
+    "outputs": {
+      "webServerIp": "${{ parameters.webServerIp }}",
+      "dbEndpoint": "${{ parameters.dbHost }}:5432"
+    }
+  }
+  

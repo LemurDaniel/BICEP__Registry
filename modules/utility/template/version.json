@@ -1,0 +1,13 @@
+{
+    "description": "Dynamically replace parameters in a file",
+    "version": "3.0.0",
+    "deployment_tests": {
+        "base_path": ".",
+        "include": [
+            {
+                "description": "Include all example folders in the test deployment",
+                "pattern": "example*"
+            }
+        ]
+    }
+}
